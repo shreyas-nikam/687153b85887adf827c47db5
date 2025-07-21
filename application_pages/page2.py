@@ -19,12 +19,20 @@ def simulate_stress_impact(data, stress_type, parameters):
     """
     stressed_data = data.copy() # Work on a copy to avoid modifying original data
 
+    # Always initialize Adjusted columns with base values first
+    if 'Base_Revenue' in stressed_data.columns:
+        stressed_data['Adjusted_Revenue'] = stressed_data['Base_Revenue']
+    if 'Base_Costs' in stressed_data.columns:
+        stressed_data['Adjusted_Costs'] = stressed_data['Base_Costs']
+
     if stress_type == 'Sensitivity':
         parameter_to_shock = parameters.get('parameter_to_shock')
         shock_magnitude = parameters.get('shock_magnitude')
         if parameter_to_shock not in stressed_data.columns:
             raise KeyError(f"Parameter '{parameter_to_shock}' not found in data for Sensitivity stress test.")
-        stressed_data[f'Adjusted_{parameter_to_shock.replace("Base_", "")}'] = stressed_data[parameter_to_shock] * (1 - shock_magnitude/100)
+        # Apply shock only to the selected parameter
+        adjusted_col_name = f'Adjusted_{parameter_to_shock.replace("Base_", "")}'
+        stressed_data[adjusted_col_name] = stressed_data[parameter_to_shock] * (1 - shock_magnitude/100)
     elif stress_type == 'Scenario':
         scenario_severity_factor = parameters.get('scenario_severity_factor')
         for col in stressed_data.columns:
@@ -96,6 +104,9 @@ def run_page2():
         stressed_data = simulate_stress_impact(base_data, stress_type, parameters)
         st.dataframe(stressed_data)
         st.session_state['stressed_data'] = stressed_data
+        st.session_state['stress_type'] = stress_type  # Store the stress test type
+        st.session_state['stress_parameters'] = parameters  # Store the parameters used
+        st.success(f"✅ {stress_type} stress test applied successfully!")
     except KeyError as e:
         st.error(f"Error: {e}")
     except Exception as e:
