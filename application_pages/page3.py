@@ -222,6 +222,44 @@ def run_page3():
         ("Trend", "Relationship", "Comparison")
     )
 
+    # Add definitions for each visualization type
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("#### 📊 **Visualization Definitions**")
+    
+    if plot_selection == "Trend":
+        st.sidebar.markdown("""
+        **🔄 Trend Plots**
+        - **Purpose**: Show how financial metrics evolve over time
+        - **Use Case**: Identify patterns, deterioration, or recovery periods
+        - **Key Insights**: 
+          - Spot when capital/liquidity hit minimum levels
+          - See cumulative impact of stress scenarios
+          - Track revenue vs cost trajectories
+        - **Business Value**: Helps predict future performance and identify critical time periods
+        """)
+    elif plot_selection == "Relationship":
+        st.sidebar.markdown("""
+        **🔗 Relationship Plots (Scatter)**
+        - **Purpose**: Reveal correlations between different financial metrics
+        - **Use Case**: Understand how one metric affects another
+        - **Key Insights**:
+          - Strong positive/negative correlations
+          - Outliers that break normal patterns
+          - Non-linear relationships
+        - **Business Value**: Identify which factors most influence capital/liquidity positions
+        """)
+    elif plot_selection == "Comparison":
+        st.sidebar.markdown("""
+        **⚖️ Comparison Plots (Bar Charts)**
+        - **Purpose**: Side-by-side comparison of two metrics over time
+        - **Use Case**: Compare baseline vs stressed scenarios
+        - **Key Insights**:
+          - Magnitude of differences between metrics
+          - Time periods with largest gaps
+          - Relative performance patterns
+        - **Business Value**: Quantify stress test impact and identify most vulnerable periods
+        """)
+
     with st.spinner("Generating visualizations..."):
         if plot_selection == "Trend":
             generate_visualizations(augmented_data, 'trend')
