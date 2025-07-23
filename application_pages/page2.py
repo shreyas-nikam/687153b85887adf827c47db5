@@ -49,7 +49,7 @@ def simulate_stress_impact(data, stress_type, parameters):
 
 def run_page2():
     st.markdown(r"""
-    # ⚡ Stress Test Simulation Engine
+    # Stress Test Simulation Engine
     
     ## Theoretical Foundation
     
@@ -121,7 +121,7 @@ def run_page2():
         
     elif stress_type == "Scenario":
         st.markdown(r"""
-        ### 📈 Scenario Stress Testing
+        ### Scenario Stress Testing
         
         **Definition**: Evaluates the impact of **specific hypothetical events** affecting multiple financial components simultaneously.
         
@@ -214,11 +214,11 @@ def run_page2():
         if parameter_to_shock == "Base_Revenue":
             original_value = base_data['Base_Revenue'].mean()
             shocked_value = original_value * (1 - shock_magnitude/100)
-            st.info(f"💡 **Preview**: Average {parameter_to_shock} would change from {original_value:.2f} to {shocked_value:.2f}")
+            st.info(f"**Preview**: Average {parameter_to_shock} would change from {original_value:.2f} to {shocked_value:.2f}")
         else:
             original_value = base_data['Base_Costs'].mean()
             shocked_value = original_value * (1 - shock_magnitude/100)
-            st.info(f"💡 **Preview**: Average {parameter_to_shock} would change from {original_value:.2f} to {shocked_value:.2f}")
+            st.info(f"**Preview**: Average {parameter_to_shock} would change from {original_value:.2f} to {shocked_value:.2f}")
 
         parameters['parameter_to_shock'] = parameter_to_shock
         parameters['shock_magnitude'] = shock_magnitude
@@ -284,7 +284,7 @@ def run_page2():
         **Firm-Wide Impact Assessment**:
         - Revenue Loss: ${revenue_loss:.2f} ({systemic_crisis_scale*100:.1f}% of total)
         - Net Financial Impact: ${net_impact:.2f}
-        - Business Continuity Risk: {'🔴 Critical' if systemic_crisis_scale > 0.7 else '🟡 Elevated' if systemic_crisis_scale > 0.4 else '🟢 Manageable'}
+        - Business Continuity Risk: {'Critical' if systemic_crisis_scale > 0.7 else 'Elevated' if systemic_crisis_scale > 0.4 else 'Manageable'}
         """)
         
         parameters['systemic_crisis_scale'] = systemic_crisis_scale

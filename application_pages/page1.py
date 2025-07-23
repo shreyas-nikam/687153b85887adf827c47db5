@@ -41,7 +41,7 @@ def load_and_validate_data(filepath=None):
 
 def run_page1():
     st.markdown(r"""
-    # 📊 Data Loading & Selection
+    # Data Loading & Selection
     
     ## Business Context
     

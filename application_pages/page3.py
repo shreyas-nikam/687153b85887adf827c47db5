@@ -33,7 +33,7 @@ def calculate_risk_capacity_metrics(projected_data):
                 missing_cols.append('Adjusted_Costs')
                 projected_data['Adjusted_Costs'] = projected_data['Base_Costs']
             
-            st.info(f"⚠️ **Stress Test Data Completed**: {', '.join(missing_cols)} were missing but have been filled with base values. This usually happens when:\n"
+            st.info(f"**Stress Test Data Completed**: {', '.join(missing_cols)} were missing but have been filled with base values. This usually happens when:\n"
                    "- You haven't run the stress test simulation on Page 2 yet\n"
                    "- The stress test was applied but only to one parameter\n\n"
                    "**Solution**: The missing columns have been automatically filled with base values (no stress applied to those parameters).")
@@ -173,7 +173,7 @@ def run_page3():
     stressed_data = st.session_state['stressed_data']
     
     # Debug information to help understand what's in the data
-    with st.expander("🔍 **Debug Info**: Available Data Columns"):
+    with st.expander("**Debug Info**: Available Data Columns"):
         st.write("**Columns in stressed_data:**", list(stressed_data.columns))
         st.write("**Session state keys:**", list(st.session_state.keys()))
         if 'stress_type' in st.session_state:
@@ -222,51 +222,54 @@ def run_page3():
         ("Trend", "Relationship", "Comparison")
     )
 
-    # Add definitions for each visualization type
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("#### 📊 **Visualization Definitions**")
-    
-    if plot_selection == "Trend":
-        st.sidebar.markdown("""
-        **🔄 Trend Plots**
-        - **Purpose**: Show how financial metrics evolve over time
-        - **Use Case**: Identify patterns, deterioration, or recovery periods
-        - **Key Insights**: 
-          - Spot when capital/liquidity hit minimum levels
-          - See cumulative impact of stress scenarios
-          - Track revenue vs cost trajectories
-        - **Business Value**: Helps predict future performance and identify critical time periods
-        """)
-    elif plot_selection == "Relationship":
-        st.sidebar.markdown("""
-        **🔗 Relationship Plots (Scatter)**
-        - **Purpose**: Reveal correlations between different financial metrics
-        - **Use Case**: Understand how one metric affects another
-        - **Key Insights**:
-          - Strong positive/negative correlations
-          - Outliers that break normal patterns
-          - Non-linear relationships
-        - **Business Value**: Identify which factors most influence capital/liquidity positions
-        """)
-    elif plot_selection == "Comparison":
-        st.sidebar.markdown("""
-        **⚖️ Comparison Plots (Bar Charts)**
-        - **Purpose**: Side-by-side comparison of two metrics over time
-        - **Use Case**: Compare baseline vs stressed scenarios
-        - **Key Insights**:
-          - Magnitude of differences between metrics
-          - Time periods with largest gaps
-          - Relative performance patterns
-        - **Business Value**: Quantify stress test impact and identify most vulnerable periods
-        """)
+    # Create two columns for visualization and definitions
+    viz_col, def_col = st.columns([2, 1])
 
-    with st.spinner("Generating visualizations..."):
+    with viz_col:
+        with st.spinner("Generating visualizations..."):
+            if plot_selection == "Trend":
+                generate_visualizations(augmented_data, 'trend')
+            elif plot_selection == "Relationship":
+                generate_visualizations(augmented_data, 'relationship')
+            elif plot_selection == "Comparison":
+                generate_visualizations(augmented_data, 'comparison')
+
+    with def_col:
+        st.markdown("#### **Visualization Definitions**")
+        
         if plot_selection == "Trend":
-            generate_visualizations(augmented_data, 'trend')
+            st.markdown("""
+            **Trend Plots**
+            - **Purpose**: Show how financial metrics evolve over time
+            - **Use Case**: Identify patterns, deterioration, or recovery periods
+            - **Key Insights**: 
+              - Spot when capital/liquidity hit minimum levels
+              - See cumulative impact of stress scenarios
+              - Track revenue vs cost trajectories
+            - **Business Value**: Helps predict future performance and identify critical time periods
+            """)
         elif plot_selection == "Relationship":
-            generate_visualizations(augmented_data, 'relationship')
+            st.markdown("""
+            **Relationship Plots (Scatter)**
+            - **Purpose**: Reveal correlations between different financial metrics
+            - **Use Case**: Understand how one metric affects another
+            - **Key Insights**:
+              - Strong positive/negative correlations
+              - Outliers that break normal patterns
+              - Non-linear relationships
+            - **Business Value**: Identify which factors most influence capital/liquidity positions
+            """)
         elif plot_selection == "Comparison":
-            generate_visualizations(augmented_data, 'comparison')
+            st.markdown("""
+            **Comparison Plots (Bar Charts)**
+            - **Purpose**: Side-by-side comparison of two metrics over time
+            - **Use Case**: Compare baseline vs stressed scenarios
+            - **Key Insights**:
+              - Magnitude of differences between metrics
+              - Time periods with largest gaps
+              - Relative performance patterns
+            - **Business Value**: Quantify stress test impact and identify most vulnerable periods
+            """)
     
     st.markdown(r"""
     **Business Logic:**
