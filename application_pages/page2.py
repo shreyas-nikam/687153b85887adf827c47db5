@@ -49,7 +49,7 @@ def simulate_stress_impact(data, stress_type, parameters):
 
 def run_page2():
     st.markdown(r"""
-    # Stress Test Simulation Engine
+    # Step 2. Stress Test Simulation Engine
     
     ## Theoretical Foundation
     
@@ -95,95 +95,34 @@ def run_page2():
     if stress_type == "Sensitivity":
         st.markdown(r"""
         ### Sensitivity Stress Testing
-        
-        **Definition**: Focuses on the impact of changing **a single parameter** or one component of a portfolio.
-        
-        **Mathematical Formula**:
-        $$\text{Adjusted Parameter} = \text{Base Parameter} \times \left(1 - \frac{\text{Shock Magnitude}}{100}\right)$$
-        
-        **Business Applications**:
-        - **Interest Rate Risk**: How does a 2% interest rate increase affect loan portfolios?
-        - **Credit Risk**: What happens if default rates on a specific product line double?
-        - **Market Risk**: Impact of a 20% decline in a particular asset class
-        
-        **Regulatory Context**: 
-        Required under Basel III for banks to assess individual risk factor sensitivities.
-        
-        **Key Benefits**:
-        - Identifies which single factors pose the greatest risk
-        - Simple to implement and understand
-        - Useful for hedging strategy development
 
-        **Limitations**:
-        - Doesn't capture correlation effects between risk factors
-        - May underestimate systemic risk scenarios
+        Sensitivity stress testing evaluates the impact of changing a single financial parameter, such as revenue or costs, to understand how specific risks affect the portfolio. The calculation applies a percentage reduction to the chosen parameter:  
+        
+        $$\text{Adjusted Parameter} = \text{Base Parameter} \times \left(1 - \frac{\text{Shock Magnitude}}{100}\right)$$  
+        
+        This method is simple, highlights key risk factors, and is required by regulations like Basel III, but does not account for correlations between risks or broader systemic effects.
         """)
         
     elif stress_type == "Scenario":
         st.markdown(r"""
         ### Scenario Stress Testing
+
+        Scenario stress testing analyzes the effects of hypothetical events—such as recessions, commodity shocks, or geopolitical crises—on multiple financial components at once. It applies a severity factor to simulate broad market impacts:
         
-        **Definition**: Evaluates the impact of **specific hypothetical events** affecting multiple financial components simultaneously.
-        
-        **Mathematical Formula**:
         $$\text{Adjusted Component} = \text{Base Component} \times (1 - \text{Scenario Severity Factor})$$
         
-        **Common Scenario Examples**:
-        - **Economic Recession**: GDP decline, unemployment rise, market volatility
-        - **Commodity Price Shock**: Oil price surge affecting transportation costs
-        - **Geopolitical Events**: Trade wars, sanctions, political instability
-        - **Natural Disasters**: Hurricane impact on regional operations
-        
-        **Regulatory Examples**:
-        - **CCAR (US)**: Severely adverse economic scenarios
-        - **EBA (EU)**: Adverse macroeconomic scenarios
-        - **APRA (Australia)**: Housing market stress scenarios
-        
-        **Key Benefits**:
-        - Captures realistic market correlations
-        - Tests multiple risk factors simultaneously
-        - Provides plausible stress narratives
-
-        **Implementation Considerations**:
-        - Based on historical events or expert judgment
-        - Should reflect institution's specific risk profile
+        This approach helps capture realistic correlations and simultaneous risks, supporting regulatory requirements and providing a more comprehensive view of institutional vulnerability.
         """)
         
     else:  # Firm-Wide
         st.markdown(r"""
         ### Firm-Wide Stress Testing
+
+        Firm-wide stress testing measures the overall impact of severe systemic crises—such as financial collapses or global pandemics—across all business lines and risk types. It applies a crisis scale to every financial component:
         
-        **Definition**: Assesses the **aggregate impact of severe systemic crises** across all portfolios and business processes.
-        
-        **Mathematical Formula**:
         $$\text{Adjusted Component} = \text{Base Component} \times (1 - \text{Systemic Crisis Scale})$$
         
-        **Systemic Crisis Examples**:
-        - **2008 Financial Crisis**: Global banking system collapse
-        - **COVID-19 Pandemic**: Worldwide economic shutdown
-        - **Sovereign Debt Crisis**: Government defaults affecting entire economies
-        - **Cyber Attack**: System-wide technology infrastructure failure
-        
-        **Comprehensive Impact Assessment**:
-        - **Income**: Revenue declines across all business lines
-        - **Costs**: Increased operational and funding costs
-        - **Market Risk**: Portfolio losses across all asset classes
-        - **Counterparty Risk**: Increased default probabilities
-        - **Liquidity**: Funding market stress and deposit outflows
-
-        **Regulatory Requirements**:
-        - **Dodd-Frank**: Annual stress tests for large US banks
-        - **Basel III**: Capital adequacy under severe stress
-        - **ICAAP**: Internal capital adequacy assessment processes
-        
-        **Key Benefits**:
-        - Tests overall institutional resilience
-        - Identifies systemic vulnerabilities
-        - Supports capital planning decisions
-
-        **Critical Considerations**:
-        - Must reflect "tail risk" scenarios (low probability, high impact)
-        - Should incorporate correlations across all risk types
+        This comprehensive approach is essential for regulatory compliance and capital planning, helping institutions identify vulnerabilities and assess resilience under extreme, correlated risk scenarios.
         """)
 
     st.markdown("---")
@@ -347,8 +286,8 @@ def run_page2():
                     )
             
             # Display stressed data
-            st.subheader("Detailed Stressed Data")
-            st.dataframe(stressed_data, use_container_width=True)
+            with st.expander("Detailed Stressed Data", expanded=False):
+                st.dataframe(stressed_data, use_container_width=True)
             
             # Next steps guidance
             st.info("""
@@ -374,23 +313,6 @@ def run_page2():
             - Verify parameter values are within valid ranges
             - Contact support if error persists
             """)
-
-    st.markdown("""
-    ---
-    ### Stress Testing Best Practices
-    
-    **Parameter Selection Guidelines**:
-    - **Conservative Approach**: Start with moderate stress levels (10-30%)
-    - **Regulatory Alignment**: Use stress factors consistent with regulatory guidance
-    - **Historical Validation**: Compare results with actual historical stress events
-    - **Forward-Looking**: Consider emerging risks not captured in historical data
-    
-    **Model Validation**:
-    - Back-test against historical crisis periods
-    - Sensitivity analysis on key assumptions
-    - Independent review of methodologies
-    - Regular model performance monitoring
-    """)
 
 if __name__ == "__main__":
     run_page2()

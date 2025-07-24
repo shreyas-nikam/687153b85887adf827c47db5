@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -91,40 +92,145 @@ def generate_visualizations(data, plot_type, config={}):
         st.error("The 'Date' column is missing or not in datetime format. Please ensure your data has a 'Date' column properly formatted.")
         return
 
-    if plot_type == 'trend':
-        st.subheader("Trend Plots")
-        trend_cols = ['Base_Revenue', 'Base_Costs', 'Adjusted_Revenue', 'Adjusted_Costs',
-                      'Net_Earnings_Under_Stress', 'Capital_Remaining', 'Liquidity_Position']
-
-        for column in trend_cols:
-            if column in data.columns and pd.api.types.is_numeric_dtype(data[column]):
-                fig = px.line(data, x='Date', y=column,
-                              title=f'{column} Trend Over Time',
-                              labels={'Date': 'Date', column: 'Value'})
-                fig.update_layout(hovermode="x unified", title_x=0.5)
-                st.plotly_chart(fig, use_container_width=True)
-
     elif plot_type == 'relationship':
-        st.subheader("Relationship Plots (Scatter Plots)")
+        st.subheader("Relationship Analysis")
         numeric_columns = data.select_dtypes(include=['number']).columns.tolist()
         cols_to_exclude = ['Date']
         numeric_columns = [col for col in numeric_columns if col not in cols_to_exclude]
 
         if len(numeric_columns) < 2:
-            st.warning("Not enough numeric columns for relationship plots.")
+            st.warning("Not enough numeric columns for relationship analysis.")
             return
 
-        selected_x = st.sidebar.selectbox("Select X-axis for Relationship Plot", options=numeric_columns)
-        selected_y = st.sidebar.selectbox("Select Y-axis for Relationship Plot", options=[col for col in numeric_columns if col != selected_x])
+        plot_type = st.sidebar.selectbox(
+            "Select Relationship Plot Type",
+            ["Scatter with Trend", "Correlation Heatmap"]
+        )
 
-        if selected_x and selected_y:
-            fig = px.scatter(data, x=selected_x, y=selected_y,
-                             title=f'Relationship: {selected_x} vs {selected_y}',
-                             labels={selected_x: selected_x, selected_y: selected_y})
-            fig.update_layout(title_x=0.5)
+        if plot_type == "Scatter with Trend":
+            selected_x = st.sidebar.selectbox("Select X-axis", options=numeric_columns)
+            selected_y = st.sidebar.selectbox("Select Y-axis", options=[col for col in numeric_columns if col != selected_x])
+
+            if selected_x and selected_y:
+                # Create scatter plot
+                fig = go.Figure()
+                
+                # Add scatter points
+                fig.add_trace(go.Scatter(
+                    x=data[selected_x],
+                    y=data[selected_y],
+                    mode='markers',
+                    name='Data Points',
+                    marker=dict(
+                        color='#1f77b4',
+                        size=8,
+                        opacity=0.7
+                    )
+                ))
+                
+                # Calculate and add trend line
+                x_values = data[selected_x].values
+                y_values = data[selected_y].values
+                coefficients = np.polyfit(x_values, y_values, 1)
+                trend_line = np.poly1d(coefficients)
+                
+                # Add trend line trace
+                fig.add_trace(go.Scatter(
+                    x=data[selected_x],
+                    y=trend_line(x_values),
+                    mode='lines',
+                    name='Trend Line',
+                    line=dict(color='#d62728', width=2)
+                ))
+                
+                # Update layout
+                fig.update_layout(
+                    title=f'Relationship Analysis: {selected_x} vs {selected_y}',
+                    xaxis_title=selected_x,
+                    yaxis_title=selected_y
+                )
+                
+                fig.update_layout(
+                    title_x=0.5,
+                    xaxis_title=selected_x,
+                    yaxis_title=selected_y,
+                    showlegend=True
+                )
+                
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Calculate correlation coefficient
+                correlation = data[selected_x].corr(data[selected_y])
+                st.info(f"**Correlation Coefficient**: {correlation:.3f}")
+                
+            else:
+                st.info("Select two numeric columns to display the relationship analysis.")
+                
+        elif plot_type == "Correlation Heatmap":
+            # Create correlation matrix
+            correlation_matrix = data[numeric_columns].corr()
+            
+            # Create heatmap
+            fig = go.Figure(data=go.Heatmap(
+                z=correlation_matrix,
+                x=numeric_columns,
+                y=numeric_columns,
+                colorscale='RdBu',  # Red-Blue diverging colorscale
+                zmid=0,  # Center the colorscale at 0
+                text=correlation_matrix.round(2),
+                texttemplate='%{text}',
+                textfont={"size": 10},
+                hoverongaps=False
+            ))
+            
+            fig.update_layout(
+                title='Correlation Heatmap of All Metrics',
+                title_x=0.5,
+                width=700,
+                height=700,
+                xaxis_tickangle=-45
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+            
+            st.markdown("""
+            **Interpreting the Heatmap:**
+            - Values close to 1 (dark blue) indicate strong positive correlation
+            - Values close to -1 (dark red) indicate strong negative correlation
+            - Values close to 0 (white) indicate little to no correlation
+            """)
+
+    elif plot_type == 'trend':
+        st.subheader("Trend Plots (Line Charts)")
+        numeric_columns = data.select_dtypes(include=['number']).columns.tolist()
+        cols_to_exclude = ['Date', 'Capital_Impact', 'Liquidity_Impact']
+        numeric_columns = [col for col in numeric_columns if col not in cols_to_exclude]
+        
+        selected_metrics = st.sidebar.multiselect(
+            "Select metrics to plot",
+            options=numeric_columns,
+            default=['Capital_Remaining', 'Liquidity_Position'] if all(x in numeric_columns for x in ['Capital_Remaining', 'Liquidity_Position']) else numeric_columns[:2]
+        )
+        
+        if selected_metrics:
+            fig = go.Figure()
+            for metric in selected_metrics:
+                fig.add_trace(go.Scatter(
+                    x=data['Date'],
+                    y=data[metric],
+                    name=metric,
+                    mode='lines'
+                ))
+            fig.update_layout(
+                title='Trend Analysis of Selected Metrics',
+                title_x=0.5,
+                xaxis_title='Date',
+                yaxis_title='Value',
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            )
             st.plotly_chart(fig, use_container_width=True)
         else:
-            st.info("Select two numeric columns to display a relationship plot.")
+            st.info("Please select at least one metric to display the trend plot.")
 
     elif plot_type == 'comparison':
         st.subheader("Comparison Plots (Bar Charts)")
@@ -141,10 +247,21 @@ def generate_visualizations(data, plot_type, config={}):
 
         if col1_name and col2_name:
             fig = go.Figure(data=[
-                go.Bar(name=col1_name, x=data['Date'], y=data[col1_name]),
-                go.Bar(name=col2_name, x=data['Date'], y=data[col2_name])
+                go.Bar(name=col1_name, x=data['Date'], y=data[col1_name], marker_color='#1f77b4'),  # Deep blue
+                go.Bar(name=col2_name, x=data['Date'], y=data[col2_name], marker_color='#d62728')   # Deep red
             ])
-            fig.update_layout(barmode='group', title=f'Comparison: {col1_name} vs {col2_name}', title_x=0.5)
+            fig.update_layout(
+                barmode='group', 
+                title=f'Comparison: {col1_name} vs {col2_name}', 
+                title_x=0.5,
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="right",
+                    x=1
+                )
+            )
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("Select two numeric columns to display a comparison plot.")
@@ -154,7 +271,7 @@ def generate_visualizations(data, plot_type, config={}):
 
 def run_page3():
     st.markdown(r"""
-    ### 3. Risk Capacity Metrics & Visualizations
+    ### Step 3. Risk Capacity Metrics & Visualizations
 
     This page presents the key financial risk metrics derived from the stressed data and interactive visualizations.
     Understanding these metrics and trends helps assess the firm's resilience under adverse conditions.
@@ -271,10 +388,3 @@ def run_page3():
             - **Business Value**: Quantify stress test impact and identify most vulnerable periods
             """)
     
-    st.markdown(r"""
-    **Business Logic:**
-    - Visualizations provide a clear, intuitive understanding of financial performance under stress.
-    - Trend plots show the evolution of key metrics over time.
-    - Relationship plots reveal correlations between different impact metrics.
-    - Comparison plots highlight the relative changes between selected financial components.
-    """)

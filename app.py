@@ -1,19 +1,19 @@
 
 import streamlit as st
-st.set_page_config(page_title="QuLab: Risk Management Framework through stress test scenarios", layout="wide")
+st.set_page_config(page_title="QuLab: Profitability & Risk Pricing", layout="wide")
 st.sidebar.image("https://www.quantuniversity.com/assets/img/logo5.jpg")
 st.sidebar.divider()
-st.title("QuLab")
+st.title("QuLab: Profitability & Risk Pricing")
 st.divider()
 # Your code starts here
-page = st.sidebar.selectbox(label="Navigation", options=["Data Loading & Selection", "Stress Test Simulation", "Visualizations"])
-if page == "Data Loading & Selection":
+page = st.sidebar.selectbox(label="Navigation", options=["Step 1. Data Loading & Selection", "Step 2. Stress Test Simulation", "Step 3. Visualizations"])
+if page == "Step 1. Data Loading & Selection":
     from application_pages.page1 import run_page1
     run_page1()
-elif page == "Stress Test Simulation":
+elif page == "Step 2. Stress Test Simulation":
     from application_pages.page2 import run_page2
     run_page2()
-elif page == "Visualizations":
+elif page == "Step 3. Visualizations":
     from application_pages.page3 import run_page3
     run_page3()
 # Your code ends

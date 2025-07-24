@@ -1,11 +1,13 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 
-def load_and_validate_data(filepath=None):
+def load_and_validate_data(filepath=None, num_days=5):
     """Loads and validates financial data.
 
     Args:
         filepath (str, optional): Path to the CSV file. If None, a synthetic dataset is used.
+        num_days (int, optional): Number of days for synthetic dataset. Default is 5.
 
     Returns:
         pd.DataFrame: Loaded and validated financial data.
@@ -16,10 +18,28 @@ def load_and_validate_data(filepath=None):
         ValueError: If duplicate dates are found.
     """
     if filepath is None:
-        # Synthetic dataset as default
-        data = {'Date': ['2024-01-01', '2024-01-02', '2024-01-03', '2024-01-04', '2024-01-05'],
-                'Base_Revenue': [100, 110, 105, 115, 120],
-                'Base_Costs': [50, 60, 55, 65, 70]}
+        # Generate synthetic dataset with specified number of days
+        
+        # Generate dates starting from 2024-01-01
+        start_date = pd.Timestamp('2024-01-01')
+        dates = pd.date_range(start=start_date, periods=num_days, freq='D')
+        
+        # Generate revenue data with some realistic variation (base around 100-120)
+        np.random.seed(42)  # For reproducible results
+        base_revenue = 100
+        revenue_variation = np.random.normal(10, 5, num_days)  # Mean=10, std=5
+        revenues = base_revenue + revenue_variation
+        revenues = np.maximum(revenues, 50)  # Ensure minimum revenue of 50
+        
+        # Generate cost data (typically 50-70% of revenue)
+        cost_ratio = np.random.uniform(0.5, 0.7, num_days)
+        costs = revenues * cost_ratio
+        
+        data = {
+            'Date': dates.strftime('%Y-%m-%d').tolist(),
+            'Base_Revenue': revenues.round(2).tolist(),
+            'Base_Costs': costs.round(2).tolist()
+        }
         df = pd.DataFrame(data)
         df['Date'] = pd.to_datetime(df['Date'])
     else:
@@ -41,9 +61,7 @@ def load_and_validate_data(filepath=None):
 
 def run_page1():
     st.markdown(r"""
-    # Data Loading & Selection
-    
-    ## Business Context
+    # Step 1. Data Loading & Selection
     
     The foundation of any robust stress testing framework begins with **high-quality, validated financial data**. 
     This page serves as the critical first step in our Risk Management Framework, where we establish the baseline 
@@ -64,11 +82,7 @@ def run_page1():
     2. **Base_Revenue**: The firm's revenue under normal, unstressed market conditions
     3. **Base_Costs**: The firm's operational costs under normal business circumstances
 
-    These components form the foundation for calculating:
-    - Net earnings under stress
-    - Capital impact assessments
-    - Liquidity position changes
-    - Risk capacity metrics
+    These components form the foundation for calculating: Net earnings under stress, Capital impact assessments, Liquidity position changes, Risk capacity metrics
     """)
 
     st.markdown("---")
@@ -155,9 +169,9 @@ def run_page1():
         Using our pre-generated synthetic financial dataset for immediate exploration. This dataset demonstrates:
         
         **Dataset Characteristics:**
-        - **Time Period**: 5-day sample period (2024-01-01 to 2024-01-05)
-        - **Revenue Range**: $100-$120 (simulating normal business variability)
-        - **Cost Range**: $50-$70 (representing operational expenses)
+        - **Time Period**: Customizable sample period starting from 2024-01-01
+        - **Revenue Range**: $100± with realistic variation (simulating normal business variability)
+        - **Cost Range**: 50-70% of revenue (representing operational expenses)
         - **Purpose**: Ideal for understanding stress testing concepts without data preparation
         
         **Business Scenario Simulation:**
@@ -167,9 +181,22 @@ def run_page1():
         - Baseline profitability suitable for stress scenario analysis
         """)
         
+        # Add slider for number of days
+        st.subheader("Data Generation Settings")
+        num_days = st.slider(
+            "Number of days to generate:",
+            min_value=5,
+            max_value=365,
+            value=30,
+            step=5,
+            help="Select how many days of synthetic financial data you want to generate. More days provide better insights for stress testing analysis."
+        )
+        
+        st.info(f"**Selected**: {num_days} days of data will be generated starting from 2024-01-01")
+        
         try:
-            with st.spinner("Generating synthetic dataset..."):
-                base_data = load_and_validate_data()
+            with st.spinner(f"Generating {num_days} days of synthetic dataset..."):
+                base_data = load_and_validate_data(num_days=num_days)
                 
             st.success("Synthetic data generated successfully!")
             
@@ -185,8 +212,11 @@ def run_page1():
                 profit_margin = ((base_data['Base_Revenue'].sum() - base_data['Base_Costs'].sum()) / base_data['Base_Revenue'].sum()) * 100
                 st.metric("Profit Margin", f"{profit_margin:.1f}%")
             
-            st.subheader("Synthetic Data Overview")
-            st.dataframe(base_data, use_container_width=True)
+            with st.expander("**Synthetic Data Overview** ", expanded=False):
+                st.markdown("""
+                View the complete synthetic dataset below. Click on column headers to sort the data.
+                """)
+                st.dataframe(base_data, use_container_width=True)
             
             # Store in session state
             st.session_state['base_data'] = base_data

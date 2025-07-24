@@ -1,12 +1,10 @@
-# QuLab: Interactive Risk Management Framework with Stress Test Visualization
+# QuLab: Profitability & Risk Pricing
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://your-streamlit-share-link.streamlit.app/)
 
 ## 📝 Project Description
 
-QuLab is an interactive Streamlit application designed to explore and visualize the Risk Management Framework through the lens of stress test scenario simulation. It provides a dynamic platform for users to understand and visualize the potential impact of various stress test scenarios on a firm's financial resources. The primary objective is to enhance comprehension of how correlated threats can simultaneously affect multiple portfolios and processes within a financial institution.
-
-This application allows users to simulate and visualize the outcomes of different stress test types: **Sensitivity**, **Scenario**, and **Firm-Wide** stress testing. It facilitates an understanding of the relationship between economic and market parameters and their ripple effects on crucial financial metrics such as income, costs, market risk losses, counterparty losses, credit losses, liquidity, provisions, reserves, and operational losses. Through interactive visualizations, QuLab illustrates financial trajectories under stress, correlations between impact metrics, and aggregated comparisons of losses.
+This lab allows users to simulate and visualize the outcomes of different stress test types: **Sensitivity**, **Scenario**, and **Firm-Wide** stress testing. It facilitates an understanding of the relationship between economic and market parameters and their ripple effects on crucial financial metrics such as income, costs, market risk losses, counterparty losses, credit losses, liquidity, provisions, reserves, and operational losses. Through interactive visualizations, QuLab illustrates financial trajectories under stress, correlations between impact metrics, and aggregated comparisons of losses.
 
 ## ✨ Features
 
@@ -52,7 +50,7 @@ Follow these instructions to set up and run the QuLab application on your local 
 2.  **Create a Virtual Environment (Recommended):**
 
     ```bash
-    python -m venv venv
+    python3 -m venv venv
     # On Windows:
     venv\Scripts\activate
     # On macOS/Linux:
